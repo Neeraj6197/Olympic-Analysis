@@ -12,23 +12,22 @@ region_df = pd.read_csv('noc_regions.csv')
 
 df = preprocessor.preprocess(df,region_df)
 
-st.sidebar.title("Olympics Analysis")
-st.sidebar.image('https://w1.pngwing.com/pngs/978/29/png-transparent-summer-symbol-olympic-games-rio-2016-2020-summer-olympics-london-2012-summer-olympics-1968-summer-olympics-pyeongchang-2018-olympic-winter-games-1904-summer-olympics-sports.png')
-user_menu = st.sidebar.radio(
-    'Select an Option',
-    ('Medal Tally','Overall Analysis','Country-wise Analysis','Athlete-wise Analysis')
-)
+st.title("Olympics Analysis since 1896")
+st.image('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Olympic_flag.svg/2560px-Olympic_flag.svg.png')
 
-st.header("Overall Olympic Analysis")
-st.dataframe(df)
+
+user_menu = st.selectbox(
+    'Select an Option',
+    ('Overall Analysis','Medal Tally','Country-wise Analysis','Athlete-wise Analysis')
+)
 
 if user_menu == 'Medal Tally':
 
-    st.sidebar.header("Medal Tally")
+    st.header("Medal Tally")
     year,country = helper.country_year_list(df)
 
-    selected_year = st.sidebar.selectbox("Select Year", year)
-    selected_country = st.sidebar.selectbox("Select Country",country)
+    selected_year = st.selectbox("Select Year", year)
+    selected_country = st.selectbox("Select Country",country)
 
     medal_tally = helper.fetch_medal_tally(df,selected_year,selected_country)
     if selected_year == 'Overall' and selected_country == 'Overall':
@@ -43,6 +42,8 @@ if user_menu == 'Medal Tally':
     st.table(medal_tally)
 
 if user_menu == 'Overall Analysis':
+    st.header("Overall Olympic Analysis")
+    st.dataframe(df)
 
     st.title("Overall Statistics")
     editions = df['Year'].unique().shape[0]
@@ -153,16 +154,14 @@ if user_menu == 'Athlete-wise Analysis':
     sport_list.insert(0, 'Overall')
     selected_sport = st.selectbox('Select a Sport', sport_list)
 
-    st.title("Height vs Weight")
-    temp_df = helper.weight_vs_height(df,selected_sport)
-    fig, ax = plt.subplots()
-    ax = sns.scatterplot(temp_df['Weight'],temp_df['Height'],hue=temp_df['Medal'],style=temp_df['Sex'],s=40)
-    st.pyplot(fig)
-
     # plotting a graph for no. of men vs no.of women in every year:
     st.title("Men VS Women Participation Over the Years")
     final = helper.men_vs_women(df)
     fig = px.line(final,x='Year',y=['Male','Female'])
     st.plotly_chart(fig)
 
-
+    st.title("Height vs Weight")
+    temp_df = helper.weight_vs_height(df, selected_sport)
+    fig, ax = plt.subplots()
+    ax = sns.scatterplot(x = temp_df['Weight'],y = temp_df['Height'], hue=temp_df['Medal'], style=temp_df['Sex'], s=40)
+    st.pyplot(fig)
